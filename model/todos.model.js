@@ -11,6 +11,10 @@ const todoSchema = new Schema(
       default: false,
       required: [true, "completed is required"],
     },
+    dish:{
+      type:String,
+      default:"lol"
+    }
   },
   {
     timestamps: true,
