@@ -39,7 +39,7 @@ app.post("/api/todos", async (req, res) => {
         message: "Task field is required and can't be empty",
       });
     }
-    await todos.create({ task});
+    await todos.create({ task });
     return res.status(201).json({
       success: true,
       status: 201,
@@ -55,13 +55,7 @@ app.post("/api/todos", async (req, res) => {
   }
 });
 
-//mongodb queries
-todos.findOne().then((doc)=>{
-  console.log(doc)
-}).catch((error)=> console.error(`Error is ${error.message}`))
-
 //get request for all tasks
-
 app.get("/api/todos", async (req, res) => {
   try {
     const data = await todos.find();
@@ -123,6 +117,7 @@ app.put("/api/todos/:id", async (req, res) => {
       { task },
       { new: true }
     );
+
     console.log(updatedTask);
     return res.status(201).json({
       success: true,
@@ -152,17 +147,26 @@ app.patch("/api/todos/:id", async (req, res) => {
         message: "task not found",
       });
     }
-    const updatedTask = await todos.findByIdAndUpdate(
-      id,
-      { completed: !todo.completed },
-      { new: true }
-    );
-    console.log(updatedTask);
+  //  await todos.findByIdAndUpdate(
+  //     id,
+  //     {task},
+  //     { completed: !todo.completed },
+  //     { new: true }
+  //   );
+
+   await todos.updateOne(
+    {_id:id},
+    {$set:{
+      completed:false,
+      task:"hello",
+      "price.2":{"midPrice":55},
+    }}
+  )
+  
     return res.status(200).json({
       success: true,
       status: 200,
       message: "task partially updated",
-      updatedTask,
     });
   } catch (error) {
     console.error(`Error:${error.message}`);
