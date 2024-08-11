@@ -12,7 +12,7 @@ const app = express();
 app.use(express.json());
 
 dotenv.config();
-//app.use(express.urlencoded({ extended: true }));
+app.use(express.urlencoded({ extended: true }));
 
 //middleware
 app.use(
@@ -36,27 +36,26 @@ app.post("/api/todos", async (req, res) => {
       return res.status(400).json({
         success: false,
         status: 400,
-        message: "This field is required.",
+        message: "Task field is required and can't be empty",
       });
     }
     await todos.create({ task });
     return res.status(201).json({
       success: true,
       status: 201,
-      message: "Congratulation! your task is now created.",
+      message: "Congratulation! your task is now created",
     });
   } catch (error) {
     console.error(`Error:${error.message}`);
     return res.status(500).json({
       success: false,
       status: 500,
-      message: "Interal server error, please try again after sometimes.",
+      message: "Interal server error, please try again after sometimes",
     });
   }
 });
 
 //get request for all tasks
-
 app.get("/api/todos", async (req, res) => {
   try {
     const data = await todos.find();
@@ -64,7 +63,7 @@ app.get("/api/todos", async (req, res) => {
       return res.status(404).json({
         success: false,
         status: 404,
-        message: "tasks not found.",
+        message: "tasks not found",
       });
     }
     res.status(200).json(data);
@@ -73,7 +72,7 @@ app.get("/api/todos", async (req, res) => {
     return res.status(500).json({
       success: false,
       status: 500,
-      message: "Interal server error, please try again after sometimes.",
+      message: "Interal server error, please try again after sometimes",
     });
   }
 });
@@ -87,7 +86,7 @@ app.get("/api/todos/:id", async (req, res) => {
       return res.status(404).json({
         success: false,
         status: 404,
-        message: "tasks not found.",
+        message: "task not found",
       });
     }
     res.status(200).json(data);
@@ -96,17 +95,50 @@ app.get("/api/todos/:id", async (req, res) => {
     return res.status(500).json({
       success: false,
       status: 500,
-      message: "Interal server error, please try again after sometimes.",
+      message: "Interal server error, please try again after sometimes",
+    });
+  }
+});
+
+//put request
+app.put("/api/todos/:id", async (req, res) => {
+  try {
+    const { task } = req.body;
+    const { id } = req.params;
+    if (!task.trim()) {
+      return res.status(400).json({
+        success: false,
+        status: 400,
+        message: "Task field is required and it can't be empty",
+      });
+    }
+    const updatedTask = await todos.findByIdAndUpdate(
+      id,
+      { task },
+      { new: true }
+    );
+
+    console.log(updatedTask);
+    return res.status(201).json({
+      success: true,
+      status: 201,
+      message: "Task updated successfully",
+      updatedTask,
+    });
+  } catch (error) {
+    console.error(`Error:${error.message}`);
+    return res.status(500).json({
+      success: false,
+      status: 500,
+      message: "Internal server error, please try again after sometimes",
     });
   }
 });
 
 //patch request
-
 app.patch("/api/todos/:id", async (req, res) => {
   try {
     const { id } = req.params;
-
     const todo = await todos.findById(id);
     if (!todo) {
       return res.status(404).json({
@@ -115,24 +147,33 @@ app.patch("/api/todos/:id", async (req, res) => {
         message: "task not found",
       });
     }
-    const updatedTask = await todos.findByIdAndUpdate(
-      id,
-      { completed: !todo.completed },
-      { new: true }
-    );
-    console.log(updatedTask);
+  //  await todos.findByIdAndUpdate(
+  //     id,
+  //     {task},
+  //     { completed: !todo.completed },
+  //     { new: true }
+  //   );
+
+   await todos.updateOne(
+    {_id:id},
+    {$set:{
+      completed:false,
+      task:"hello",
+      "price.2":{"midPrice":55},
+    }}
+  )
+  
     return res.status(200).json({
       success: true,
       status: 200,
       message: "task partially updated",
-      updatedTask,
     });
   } catch (error) {
     console.error(`Error:${error.message}`);
     return res.status(500).json({
       success: false,
       status: 500,
-      message: "Interal server error, please try again after sometimes.",
+      message: "Interal server error, please try again after sometimes",
     });
   }
 });
@@ -152,7 +193,7 @@ app.delete("/api/todos/:id", async (req, res) => {
     return res.status(500).json({
       success: false,
       status: 500,
-      message: "Interal server error, please try again after sometimes.",
+      message: "Interal server error, please try again after sometimes",
     });
   }
 });
